@@ -34,11 +34,13 @@
 
 #include <gz/plugin/Register.hh>
 
+#include <gz/rendering/BoundingBoxCamera.hh>
 #include <gz/rendering/Camera.hh>
 #include <gz/rendering/RenderEngine.hh>
 #include <gz/rendering/RenderingIface.hh>
 #include <gz/rendering/Scene.hh>
 
+#include <gz/sim/components/BoundingBoxCamera.hh>
 #include <gz/sim/components/Camera.hh>
 #include <gz/sim/components/Model.hh>
 #include <gz/sim/components/Name.hh>
@@ -162,7 +164,7 @@ class CameraZoomPlugin::Impl
   public: rendering::ScenePtr scene;
 
   /// \brief Pointer to the rendering camera
-  public: rendering::CameraPtr camera;
+  public: rendering::BoundingBoxCameraPtr camera;
 
   /// \brief Convert from focal length to FOV for a rectilinear lens
   /// \ref https://en.wikipedia.org/wiki/Focal_length
@@ -229,7 +231,7 @@ void CameraZoomPlugin::Impl::InitialiseCamera()
             << std::endl;
       return;
     }
-    this->camera = std::dynamic_pointer_cast<rendering::Camera>(sensor);
+    this->camera = std::dynamic_pointer_cast<rendering::BoundingBoxCamera>(sensor);
     if (!this->camera)
     {
       gzerr << "[" << this->cameraName << "] is not a camera."
@@ -409,7 +411,7 @@ void CameraZoomPlugin::PreUpdate(
   /// \todo(srmainwaring) replace with `gz::sim::Sensor` when available.
   // Entity cameraEntity = this->impl->cameraSensor.Entity();
   Entity cameraEntity = this->impl->cameraSensorEntity;
-  auto comp = _ecm.Component<components::Camera>(cameraEntity);
+  auto comp = _ecm.Component<components::BoundingBoxCamera>(cameraEntity);
   if (!comp)
     return;
 
@@ -478,11 +480,12 @@ void CameraZoomPlugin::PreUpdate(
       sensorWidth, newFocalLength);
   // Update rendering camera with the latest focal length.
   cameraSdf->SetHorizontalFov(newHfov);
-  _ecm.SetChanged(cameraEntity, components::Camera::typeId,
+  _ecm.SetChanged(cameraEntity, components::BoundingBoxCamera::typeId,
     ComponentState::OneTimeChange);
 
   // Update rendering camera.
   this->impl->camera->SetHFOV(newHfov);
+  gzwarn << "Update rendering camera with new HFOV: " << newHfov << ".\n";
 }
 
 //////////////////////////////////////////////////

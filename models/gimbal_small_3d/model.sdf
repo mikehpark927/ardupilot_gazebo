@@ -188,9 +188,10 @@
           </cylinder>
         </geometry>
       </collision>
-      <sensor name="camera" type="camera">
+      <sensor name="camera" type="boundingbox_camera">
         <pose>0 0 0 -1.57 -1.57 0</pose>
         <camera>
+          <box_type>full_2d</box_type>
           <horizontal_fov>2.0</horizontal_fov>
           <image>
             <width>640</width>
